@@ -14,20 +14,40 @@ class Game:
         self.running = True
         
         self.player = Player(config.WIDTH / 2, config.HEIGHT / 2 )
-    
+        
+        self.font = pygame.font.SysFont(None, config.FONT_SIZE)
+        
     
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+
     
     def update(self, dt):
         self.player.update(dt)
+        
     
     def draw(self):
         self.screen.fill(config.BACKGROUND_COLOR)
         self.player.draw(self.screen)
         pygame.display.flip()
+        
+        self.draw_fps()
+        pygame.display.flip()
+        
+        
+
+
+
+
+    def draw_fps(self):
+        text = f"{self.clock.get_fps():.0f}"
+        image = self.font.render(text, True, config.FPS_COLOR)
+        imageConst = self.font.render(f"FPS: ", True, config.FPS_COLOR)
+        self.screen.blit(image, (40,10))
+        self.screen.blit(imageConst, (5,10))
+        
         
     def run(self):
         while self.running:
@@ -36,4 +56,6 @@ class Game:
             self.update(dt)
             self.draw()
         pygame.quit()
+        
+
         
