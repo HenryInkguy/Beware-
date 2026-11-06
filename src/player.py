@@ -20,8 +20,36 @@ class Player:
         
         self.aim_direction = pygame.Vector2(1,0)    
     
+    def get_hitbox(self):
+        """HITBOX"""
+        hitbox = pygame.Rect(0 ,0, self.radius * 2, self.radius * 2)
+        hitbox.center = (round(self.pos.x), round(self.pos.y))
+        return hitbox
+    
+    def move(self, delta, tilemap):
+        """Moves one axis at a time to slide along walls."""    
+        self.pos.x += delta.x
+        hitbox = self.get_hitbox()
+        for wall in tilemap.get_walls_near(hitbox):
+            if hitbox.colliderect(wall):
+                if delta.x > 0:
+                    self.pos.x = wall.left - self.radius
+                elif delta.x < 0:
+                    self.pos.x = wall.right + self.radius
+                hitbox = self.get_hitbox()
         
-    def update(self, dt):
+        self.pos.y += delta.y
+        hitbox = self.get_hitbox()
+        for wall in tilemap.get_walls_near(hitbox):
+            if hitbox.colliderect(wall):
+                if delta.y > 0:
+                    self.pos.y = wall.top - self.radius
+                elif delta.y < 0:
+                    self.pos.y = wall.bottom + self.radius
+                hitbox = self.get_hitbox()
+                        
+    
+    def update(self, dt, tilemap):
         current_speed = self.speed
         keys = pygame.key.get_pressed()
         direction = pygame.Vector2(0,0)
@@ -74,7 +102,9 @@ class Player:
         
         
         
-        self.pos += direction * current_speed * dt
+        self.move(direction * current_speed * dt, tilemap)
+        self.update_aim()
+    
         
         
     def update_aim(self):
@@ -90,7 +120,6 @@ class Player:
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, self.pos, self.radius)
         self.draw_stamina_bar(screen)
-        
         aim_end = self.pos + self.aim_direction * config.AIM_LINE_LENGTH
         pygame.draw.line(screen, self.color, self.pos, aim_end, config.AIM_LINE_WIDTH)
         
